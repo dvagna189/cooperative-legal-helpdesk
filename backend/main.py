@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+from router import classify_query
+from rag import search_documents
+from grievance import generate_grievance_letter
+
 app = FastAPI()
 
 
@@ -25,7 +29,14 @@ def health():
 
 @app.post("/chat")
 def chat(request: ChatRequest):
+
+    category = classify_query(request.message)
+
+    documents = search_documents(request.message)
+
     return {
-        "reply": "I received your question.",
+        "question": request.message,
+        "category": category,
+        "documents": documents,
         "language": request.language
     }
